@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
 
-            String shiftedText = "";
+            StringBuilder shiftedText = new StringBuilder();
 
             for (int i = 0; i < strings[0].length(); i++) {
                 int oldValueOfChar = (int) strings[0].charAt(i);
@@ -71,14 +71,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-                shiftedText += Character.toString((char) newValueOfChar);
+                shiftedText.append(Character.toString((char) newValueOfChar));
                 publishProgress(i);
 
                 if (isCancelled()) {
                     break;
                 }
             }
-            return shiftedText;
+            return shiftedText.toString();
         }
 
         @Override
