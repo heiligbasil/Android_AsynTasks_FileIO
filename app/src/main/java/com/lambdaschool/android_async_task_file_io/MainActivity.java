@@ -8,9 +8,11 @@ import android.view.View;
 import android.widget.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EMPTY_STRING = "";
+    public static final String ASSET_EXTENSION = ".txt";
     EditText editTextShifts;
     TextView textViewCypher;
     ProgressBar progressBar;
@@ -30,13 +32,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        String[] listOfAssets = new String[0];
+        String[] assetStringArray;
+        ArrayList<String> assetArrayList = new ArrayList<>();
         try {
-            listOfAssets = getAssets().list(EMPTY_STRING);
+            assetStringArray = getAssets().list(EMPTY_STRING);
+            if (assetStringArray != null) {
+                for (String asset:assetStringArray) {
+                    if (asset.endsWith(ASSET_EXTENSION)) {
+                        assetArrayList.add(asset);
+                    }
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, listOfAssets);
+        ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, assetArrayList);
         stringArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         Spinner spinner = findViewById(R.id.spinner);
         spinner.setAdapter(stringArrayAdapter);
