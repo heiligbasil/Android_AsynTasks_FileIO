@@ -1,9 +1,10 @@
 package com.lambdaschool.android_async_task_file_io;
 
-import android.content.res.AssetManager;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.*;
 
@@ -13,8 +14,9 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     public static final String EMPTY_STRING = "";
     public static final String ASSET_EXTENSION = ".txt";
+    public static final String DEFAULT_CIPHER = "default";
     EditText editTextShifts;
-    TextView textViewCypher;
+    TextView textViewCipher;
     ProgressBar progressBar;
     Button buttonDecrypt;
     AsyncTask cipher;
@@ -31,13 +33,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        final Context context = this;
+        textViewCipher = findViewById(R.id.text_view_cipher);
 
         String[] assetStringArray;
         ArrayList<String> assetArrayList = new ArrayList<>();
         try {
             assetStringArray = getAssets().list(EMPTY_STRING);
+            assetArrayList.add(0, DEFAULT_CIPHER);
             if (assetStringArray != null) {
-                for (String asset:assetStringArray) {
+                for (String asset : assetStringArray) {
                     if (asset.endsWith(ASSET_EXTENSION)) {
                         assetArrayList.add(asset);
                     }
@@ -46,21 +51,41 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, assetArrayList);
         stringArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        Spinner spinner = findViewById(R.id.spinner);
+        final Spinner spinner = findViewById(R.id.spinner);
         spinner.setAdapter(stringArrayAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String assetText = null;
+                String itemSelected = parent.getItemAtPosition(position).toString();
+
+                if (itemSelected.equals(DEFAULT_CIPHER)) {
+                    assetText = getString(R.string.cipher);
+                } else {
+                    FileIO fileIO = new FileIO(context);
+                    assetText = fileIO.readFileBuffered(itemSelected);
+                }
+                textViewCipher.setText(assetText);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
 
         editTextShifts = findViewById(R.id.edit_text_shifts);
-        textViewCypher = findViewById(R.id.text_view_cypher);
+
         progressBar = findViewById(R.id.progress_bar);
 
         buttonDecrypt = findViewById(R.id.button_decrypt);
         buttonDecrypt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String textToDecrypt = textViewCypher.getText().toString();
+                String textToDecrypt = textViewCipher.getText().toString();
                 String numberOfShifts = editTextShifts.getText().toString();
                 cipher = (new Cipher()).execute(textToDecrypt, numberOfShifts);
             }
@@ -72,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             buttonDecrypt.setEnabled(false);
-            progressBar.setMax(textViewCypher.getText().length());
+            progressBar.setMax(textViewCipher.getText().length());
             progressBar.setVisibility(View.VISIBLE);
         }
 
@@ -114,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String shiftedText) {
             super.onPostExecute(shiftedText);
-            textViewCypher.setText(shiftedText);
+            textViewCipher.setText(shiftedText);
             progressBar.setVisibility(View.GONE);
             buttonDecrypt.setEnabled(true);
         }
