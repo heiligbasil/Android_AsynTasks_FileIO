@@ -2,6 +2,7 @@ package com.lambdaschool.android_async_task_file_io;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -10,15 +11,17 @@ import android.widget.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EMPTY_STRING = "";
     public static final String ASSET_EXTENSION = ".txt";
-    public static final String DEFAULT_CIPHER = "default";
+    public static final String DEFAULT_CIPHER = "default.txt";
     EditText editTextShifts;
     TextView textViewCipher;
     ProgressBar progressBar;
     Button buttonDecrypt;
+    Button buttonWrite;
     AsyncTask cipher;
 
 
@@ -39,15 +42,18 @@ public class MainActivity extends AppCompatActivity {
         String[] assetStringArray;
         ArrayList<String> assetArrayList = new ArrayList<>();
         try {
-            assetStringArray = getAssets().list(EMPTY_STRING);
+            assetArrayList.addAll(Arrays.asList(getAssets().list(EMPTY_STRING)));
+            assetArrayList.addAll(Arrays.asList(getCacheDir().list()));
             assetArrayList.add(0, DEFAULT_CIPHER);
-            if (assetStringArray != null) {
-                for (String asset : assetStringArray) {
-                    if (asset.endsWith(ASSET_EXTENSION)) {
-                        assetArrayList.add(asset);
-                    }
+            ArrayList<String> assetsToRemove = new ArrayList<>();
+
+            for (String asset : assetArrayList) {
+                if (!asset.contains(ASSET_EXTENSION)) {
+                    assetsToRemove.add(asset);
                 }
             }
+            assetArrayList.removeAll(assetsToRemove);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -91,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button buttonWrite = findViewById(R.id.button_write);
+        buttonWrite = findViewById(R.id.button_write);
         buttonWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             buttonDecrypt.setEnabled(false);
+            buttonWrite.setEnabled(false);
             progressBar.setMax(textViewCipher.getText().length());
             progressBar.setVisibility(View.VISIBLE);
         }
@@ -151,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
             textViewCipher.setText(shiftedText);
             progressBar.setVisibility(View.GONE);
             buttonDecrypt.setEnabled(true);
+            buttonWrite.setEnabled(true);
         }
 
         @Override
@@ -158,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
             super.onCancelled(s);
             progressBar.setVisibility(View.GONE);
             buttonDecrypt.setEnabled(true);
+            buttonWrite.setEnabled(true);
         }
     }
 }

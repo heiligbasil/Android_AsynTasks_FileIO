@@ -44,7 +44,8 @@ public class FileIO {
         BufferedReader bufferedReader = null;
 
         try {
-            InputStream inputStream = context.getAssets().open(fileName);
+            InputStream inputStream = fileName.endsWith(MainActivity.ASSET_EXTENSION) ? context.getAssets().open(fileName) : new FileInputStream(new File(context.getCacheDir(), fileName).getPath());
+
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             bufferedReader = new BufferedReader(inputStreamReader);
             String lineByLine = bufferedReader.readLine();
