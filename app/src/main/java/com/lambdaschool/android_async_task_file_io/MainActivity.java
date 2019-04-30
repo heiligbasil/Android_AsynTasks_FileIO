@@ -90,6 +90,15 @@ public class MainActivity extends AppCompatActivity {
                 cipher = (new Cipher()).execute(textToDecrypt, numberOfShifts);
             }
         });
+
+        Button buttonWrite = findViewById(R.id.button_write);
+        buttonWrite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FileIO fileIO = new FileIO(context);
+                fileIO.writeFile(spinner.getSelectedItem().toString(), textViewCipher.getText().toString());
+            }
+        });
     }
 
     public class Cipher extends AsyncTask<String, Integer, String> {

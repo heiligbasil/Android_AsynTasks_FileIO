@@ -102,7 +102,7 @@ public class FileIO {
         FileWriter fileWriter = null;
 
         try {
-            File fileToWrite = new File(getStorageDirectory(), fileName);
+            File fileToWrite = File.createTempFile(fileName, null, getStorageDirectory());
             fileWriter = new FileWriter(fileToWrite);
             fileWriter.write(textToWrite);
 
